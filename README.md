@@ -1,4 +1,8 @@
-![trained agent](trained_agent.gif)
+Single Agent Test View:
+![trained agent single](trained_agent_single.gif)
+
+Multi Agent Test View:
+![trained agent multi](trained_agent_multi.gif)
 
 
 
@@ -13,7 +17,7 @@ This environment is a pre-built version of the [Unity Reacher](https://github.co
 - The first version contains a single agent.
 - The second version contains 20 identical agents, each with its own copy of the environment.
 
-We've focused on solving the 20 agent case, although both versions can use our code to train with (possibly with adjustment to hyper-parameters).
+We've focused on solving the 20 agent case, although both versions can use our code to train with (possibly with adjustment to hyper-parameters). Note that even if the agent was trained on 20 agents, it may still be used to control a single arm.
 
 We describe the single agent case, just for the sake of easy explanation, but it applies to the multi(20)- agent version in the same way. The 20 agent version is really just observing 20 of the single agent versions simultaneously - allowing more observations quicker, which in turn translates to quicker learning.
 
@@ -82,17 +86,20 @@ Multi-agent version:
 - Windows (32-bit): click [here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Windows_x86.zip)
 - Windows (64-bit): click [here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Windows_x86_64.zip)
 
-Download the file into the top level directory of this repo and extract it. The code as it is assumes that the environment file (`Reacher.x86` for 32-bit systems or `Reacher.x86_64` for 64-bit systems) is located with a directory in the root of the repo (`/Reacher_Multi/` for the multi-agent version of the environment or `/Reacher_Single/` for the single-agent version of the environment).
+Download the file into the top level directory of this repo and extract it. The code as it is, assumes that the environment file (`Reacher.x86` for 32-bit systems or `Reacher.x86_64` for 64-bit systems) is located with a directory in the root of the repo (`/Reacher_Multi/` for the multi-agent version of the environment or `/Reacher_Single/` for the single-agent version of the environment).
 
 
 
 ## Files in the repo
 This is a short description of the files in the repo (that comes with the repo) or may be generated as output by the code when running:
 
-* `main.py`: the main file containing high-level training function as well as a function for viewing a trained agent. Note that the directory location of this file is detected and used as a parameter in the code. If you are not executing from the command line, you may need to make adjustments to the code. This is the file that will be run from the command line as follows:
+* `main.py`: the main file containing high-level training function, a function for viewing a trained agent, as well as a function for plotting the results. Note that the directory location of this file is detected and used as a parameter in the code. If you are not executing from the command line, you may need to make adjustments to the code. This is the file that will be run from the command line as follows:
 
-    * To train the agent: `python main.py --mode train` or, since training is the default behaviour, `python main.py` will also work just fine.
-    * To view a trained agent: `python main.py --mode view`. You will need a `actor_checkpoint.pth` file in the root for this to work.
+    * There are two command-line arguments:
+        * `--mode` with possible values `train` for training an agent (the default), `view` for viewing a trained agent and `plot` for plotting the results after training.
+        * `--env` with possible values `multi` for working with the multi-agent environment (the default) and `single` for the single-agent environment.
+    * E.g. to train the agent on the multi-agent environment: `python main.py --mode train --env multi` or, since training is the default behaviour and multi is the default environment, `python main.py` will do the same thing.
+    * E.g. to view a trained agent on the single environment: `python main.py --mode view --env single`. You will need a `actor_checkpoint.pth` file in the root for this to work.
 
 * `parameters.py`: the file with all the hyper-parameters that we chose to expose (essentially the ones we felt were important during some stage of the development and understanding). Actual parameters are merely global python constants.
 
@@ -109,7 +116,7 @@ This is a short description of the files in the repo (that comes with the repo) 
 
 
 ## Train the agent
-To train the agent: `python main.py --mode train` or, since training is the default behaviour, `python main.py` will also work just fine.
+Refer to the `main.py` file description above for help on how to start training.
 
 This will start the Unity environment and output live training statistics to the command line. Training continues for up to 1001 episodes. However, with the hyper-parameters as they are set in the repo, the required average is achieved before 100 episodes are done. It will continue to save checkpoint files with the weights of the networks at episode 100, 200, 300, etc thereafter. You may interrupt the code at any time.
 
@@ -117,10 +124,11 @@ Feel free to experiment with modifying the hyper-parameters to see how it affect
 
 I found DDPG (at least in the form we've created it) extremely sensitive to the hyper-parameters and very unstable. Making a slight change to one the hyper-parameters, could suddenly cause erratic behaviour and also unable to train at all. This was very disappointed, but it may just be that not enough stabalising enhancements had been introduced or that the DDPG is not really suitable for this specific task. More specific details will be provided in the Report file, linked below.
 
+Training on my laptop with a Nvidia Quadro M2000M graphics card, takes starts at about 35 seconds per episode and peaks at around 60 seconds per episode after 30 episodes (as the replay buffer grows).
 
 
 ## View the trained agent perform
-To view a trained agent: `python main.py --mode view`.
+Refer to the `main.py` file description above for help on how to start viewing.
 This will load the saved weights from a checkpoint file (`actor_checkpoint.pth`).  A previously trained model is already included in this repo.
 
 

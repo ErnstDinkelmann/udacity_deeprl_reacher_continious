@@ -113,7 +113,7 @@ def view(output_folder='../'):
         output_folder (str): full path to the saved model weights, checkpoint file
     """
 
-    agent.actor_local.load_state_dict(torch.load(output_folder + '/actor_checkpoint_1229.pth')) # load saved weights
+    agent.actor_local.load_state_dict(torch.load(output_folder + '/actor_checkpoint.pth'))  # load saved weights
     env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
     states = env_info.vector_observations.reshape([num_agents, num_obs])  # get the current state
     score_tot_one_eps = 0  # initialize the score
@@ -151,107 +151,116 @@ def plot_last_scores(output_folder='../'):
     plt.plot(np.arange(len(lstScores)), lstScores)
     plt.ylabel('Score')
     plt.xlabel('Episode #')
+    plt.savefig(output_folder + '/training_score_by_episode.png')
     plt.show()
-    plt.savefig(strOutputFolder + '/training_score_by_episode.png')
 
-# plot_last_scores(strOutputFolder=str(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/')
 
-# if __name__ == '__main__':
-# Set up argument parsing for execution from the command line
-# There is only a single argument --mode, which can be either 'train' or 'view'
-# If running in console, comment out the parser lines and uncomment the manual setting of the args dictionary
-parser = ArgumentParser()
-parser.add_argument('--mode', dest='mode', help='train, view', metavar='MODE', default='train')
-# args = parser.parse_args()
-args = parser.parse_args('--mode train'.split())
 
-# Automatic detection of the directory within which this py file is located will only work if the py file is
-# executed from command line. When executed within a console within an IDE for example, the context is different
-# In that case, just manually specify the strHomeDir as the full absolute directory within which this py file
-# is located.
-strHomeDir = str(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/'
-# strHomeDir = '/home/ernst/Projects/udacity_deeprl_reacher_continious/'
+if __name__ == '__main__':
+    # Set up argument parsing for execution from the command line
+    # There is only a single argument --mode, which can be either 'train' or 'view'
+    # If running in console, comment out the parser lines and uncomment the manual setting of the args dictionary
+    parser = ArgumentParser()
+    parser.add_argument('--mode', dest='mode', help='train (default), view, plot', metavar='MODE', default='train')
+    parser.add_argument('--env', dest='env', help='single, multi (default)', metavar='ENV', default='multi')
+    args = parser.parse_args()
+    # args = parser.parse_args('--mode train --env multi'.split())
 
-# We also set the full path to the Reacher Environment file - either the single or the multi agent versions
-# By default it assumes the applicable Reacher environment files lies either within a directory 'Reacher_Single' (for
-# the single agent environment) or 'Reacher_Multi' (for the multi agent environment), either of which is assumed to be
-# located in the directory of the current py file
-# You may download the environment as per instructions in the readme file
-strEnvFile = strHomeDir + 'Reacher_Multi/Reacher.x86_64'
-# strEnvFile = strHomeDir + 'Reacher_Single/Reacher.x86_64'
+    # Automatic detection of the directory within which this py file is located will only work if the py file is
+    # executed from command line. When executed within a console within an IDE for example, the context is different
+    # In that case, just manually specify the strHomeDir as the full absolute directory within which this py file
+    # is located.
+    strHomeDir = str(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/'
+    # strHomeDir = '/home/ernst/Projects/udacity_deeprl_reacher_continious/'
 
-# We also set the directory to save to and read from the saved network weights.
-# By default we save/read in strHomeDir
-# If the folder specified does not exist, it is created.
-strOutputFolder = strHomeDir
-if not os.path.exists(strOutputFolder):
-    os.makedirs(strOutputFolder)
+    # We also set the full path to the Reacher Environment file - either the single or the multi agent versions
+    # By default it assumes the applicable Reacher environment files lies either within a directory 'Reacher_Single'
+    # (for the single agent environment) or 'Reacher_Multi' (for the multi agent environment), either of which is
+    # located in the directory of the current py file.
+    # You may download the environment as per instructions in the readme file
+    if args.env == 'multi':
+        strEnvFile = strHomeDir + 'Reacher_Multi/Reacher.x86_64'
+    elif args.env == 'single':
+        strEnvFile = strHomeDir + 'Reacher_Single/Reacher.x86_64'
+    else:
+        raise ValueError('Unknown --env parameter: ' + args.env)
 
-# Change the working directory to the above directory - this just helps for potential relative path imports
-# Again, this will not necessarily work in the case of console execution as a different context potentially applies
-os.chdir(strHomeDir)
+    # We also set the directory to save to and read from the saved network weights.
+    # By default we save/read in strHomeDir
+    # If the folder specified does not exist, it is created.
+    strOutputFolder = strHomeDir
+    if not os.path.exists(strOutputFolder):
+        os.makedirs(strOutputFolder)
 
-# Print parameters for this run from the parameters.py file
-# Just helped me connect results with parameters if I made changes to things mid-runs.
-num_blanks = 0
-with open(strHomeDir + 'parameters.py', 'r') as f:
-    for line in f.readlines():
-        if len(line) == 0:
-            num_blanks += num_blanks
-            if num_blanks == 2:
-                break
-        else:
-            num_blanks = 0
-            print(line)
+    # Change the working directory to the above directory - this just helps for potential relative path imports
+    # Again, this will not necessarily work in the case of console execution as a different context may apply
+    os.chdir(strHomeDir)
 
-if args.mode == "train":
-    print('--mode train initiated')
-    # Start the environment.
-    # In the case of training, this is set with no_graphics=True to avoid visual elements, to speed up training.
-    env = UnityEnvironment(file_name=strEnvFile, no_graphics=True, seed=RANDOM_SEED)
 
-    # Environments contain **_brains_** which are responsible for deciding the actions of their associated agents.
-    # Here we check for the first brain available, and set it as the default brain we will be controlling from Python.
-    brain_name = env.brain_names[0]
-    brain = env.brains[brain_name]
 
-    # Determine number of simultaneous agents and number of observations per agent
-    env_info = env.reset(train_mode=True)[brain_name]  # reset the environment
-    num_agents = len(env_info.agents)
-    num_obs = brain.vector_observation_space_size
-    print('Number of Agents:', num_agents)
+    if args.mode == "train":
+        print('--mode train initiated')
 
-    # Instantiate our agent with the implied state and action space sizes
-    agent = DdpgAgent(num_agents=num_agents,
-                      state_size=num_obs,
-                      action_size=brain.vector_action_space_size,
-                      random_seed=RANDOM_SEED)
+        # Print parameters for this training run from the parameters.py file
+        # Just helped me connect results with parameters if I made changes to things mid-runs.
+        num_blanks = 0
+        with open(strHomeDir + 'parameters.py', 'r') as f:
+            for line in f.readlines():
+                if len(line) == 0:
+                    num_blanks += num_blanks
+                    if num_blanks == 2:
+                        break
+                else:
+                    num_blanks = 0
+                    print(line)
 
-    scores = train(output_folder=strOutputFolder)
-    # ...can do something with the scores here if needed.
+        # Start the environment, with no_graphics=True to avoid visual elements, to speed up training.
+        env = UnityEnvironment(file_name=strEnvFile, no_graphics=True, seed=RANDOM_SEED)
 
-elif args.mode == 'view':
-    print('--mode view initiated')
+        # Environments contain **_brains_** which are responsible for deciding the actions of their associated agents.
+        # Here we check for the first brain available, and set it as the default.
+        brain_name = env.brain_names[0]
+        brain = env.brains[brain_name]
 
-    # Start the environment.
-    # In the case of viewing, this is set with no_graphics=False to see visual elements.
-    env = UnityEnvironment(file_name=strEnvFile, no_graphics=False, seed=RANDOM_SEED)
+        # Determine number of simultaneous agents and number of observations per agent
+        env_info = env.reset(train_mode=True)[brain_name]  # reset the environment
+        num_agents = len(env_info.agents)
+        num_obs = brain.vector_observation_space_size
+        print('Number of Agents:', num_agents)
 
-    # Environments contain **_brains_** which are responsible for deciding the actions of their associated agents.
-    # Here we check for the first brain available, and set it as the default brain we will be controlling from Python.
-    brain_name = env.brain_names[0]
-    brain = env.brains[brain_name]
+        # Instantiate our agent with the implied state and action space sizes
+        agent = DdpgAgent(num_agents=num_agents,
+                          state_size=num_obs,
+                          action_size=brain.vector_action_space_size,
+                          random_seed=RANDOM_SEED)
 
-    # Determine number of simultaneous agents and number of observations per agent
-    env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
-    num_agents = len(env_info.agents)
-    num_obs = brain.vector_observation_space_size
-    print('Number of Agents:', num_agents)
+        scores = train(output_folder=strOutputFolder)  # ...can do something with the scores here if needed.
+    elif args.mode == 'view':
+        print('--mode view initiated')
 
-    # Instantiate our agent with the implied state and action space sizes
-    agent = DdpgAgent(num_agents=num_agents,
-                      state_size=num_obs,
-                      action_size=brain.vector_action_space_size,
-                      random_seed=RANDOM_SEED)
+        # Start the environment, with no_graphics=False to see visual elements.
+        env = UnityEnvironment(file_name=strEnvFile, no_graphics=False, seed=RANDOM_SEED)
 
-    view(output_folder=strOutputFolder)
+        # Environments contain **_brains_** which are responsible for deciding the actions of their associated agents.
+        # Here we check for the first brain available, and set it as the default.
+        brain_name = env.brain_names[0]
+        brain = env.brains[brain_name]
+
+        # Determine number of simultaneous agents and number of observations per agent
+        env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
+        num_agents = len(env_info.agents)
+        num_obs = brain.vector_observation_space_size
+        print('Number of Agents:', num_agents)
+
+        # Instantiate our agent with the implied state and action space sizes
+        agent = DdpgAgent(num_agents=num_agents,
+                          state_size=num_obs,
+                          action_size=brain.vector_action_space_size,
+                          random_seed=RANDOM_SEED)
+
+        view(output_folder=strOutputFolder)
+    elif args.mode == 'plot':
+        print('--mode plot initiated')
+        plot_last_scores(output_folder=strOutputFolder)
+    else:
+        raise ValueError('Unknown --mode parameter: ' + args.mode)

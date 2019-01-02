@@ -3,7 +3,7 @@ RANDOM_SEED = 0  # Global random seed ensuring reproducible results 0
 MAX_N_EPISODES = 1001  # Overall max number of training episodes
 MAX_N_STEPS = 1001  # Maximum number of training steps per episode before starting a new episode
 WIN_SCORE = 30  # Project goal. Once reached, will save critic and actor networks' weights to checkpoint files
-WIN_QUEUE_LEN = 100  # The number of episodes over which the total reward is averaged to determine the reward
+WIN_QUEUE_LEN = 100  # The number of episodes over which the total reward is averaged to get score
 
 # Agent parameters
 REPLAY_BUFFER_SIZE = int(5e5)  # replay buffer size int(5e5) int(1e6) int(1e5)
@@ -32,33 +32,3 @@ NOISE_SIGMA_DELTA = 0.9999  # overall variance reduction factor   1 0.99997 0.99
 FC1_UNITS = 512  # Number of fully connected units in the 1st hidden layer, both actor and critic networks 512
 FC2_UNITS = 512  # Number of fully connected units in the 2nd hidden layer, both actor and critic networks 512
 FC3_UNITS = 512  # Number of fully connected units in the 3rd hidden layer, both actor and critic networks 512
-
-
-# Notes
-# =====
-
-# General
-# =======
-# solving and speed very very sensitive to combination of hyper parameters. Even changing number of network units slightly,
-#  either takes a lot longer or in same cases does not solve it pratically.
-
-
-# Future
-# ======
-# Other replay buffer sampling techniques - started with this, but did not go into detail.
-#  Geometric, Linear, Episode based probabilities (eg higher prob of sampling from most recent experience
-# Prioritised replay
-# Parameter noise as opposed to action noise
-# Other models
-# More hyper parameter optimisation
-
-# Also attempted
-# ==============
-# RMSprop as optimizer, also sovled it, but slower
-# dropout layers
-# multiple different network setups
-# Bias initilisation
-
-# watch -d -n 0.5 nvidia-smi
-# pip install gpustat
-# gpustat -c -i 0.5
